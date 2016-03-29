@@ -1,7 +1,7 @@
 CREATE TABLE room (
     id bigint primary key generated always as identity,
-    number int,
-    beds int,
+    number integer,
+    beds integer,
     pricePerNight decimal,
     note varchar(255));
 
@@ -16,5 +16,5 @@ CREATE TABLE rent (
     pricePerNight decimal,
     guest bigint,
     room bigint,
-    born startTime,
-    born endTime;
+    startTime date,
+    endTime date);

@@ -25,7 +25,7 @@ public class RoomManagerImplTest {
     @Before
     public void setUp() throws Exception {
         dataSource = prepareDataSource();
-        DBUtils.executeSqlScript(dataSource, new URL("createTables.sql"));
+        DBUtils.executeSqlScript(dataSource, RoomManagerImpl.class.getResource("createTables.sql"));
         manager = new RoomManagerImpl(dataSource);
 
     }
@@ -40,7 +40,7 @@ public class RoomManagerImplTest {
 
     @After
     public void tearDown() throws Exception {
-        DBUtils.executeSqlScript(dataSource, new URL("dropTables.sql"));
+        DBUtils.executeSqlScript(dataSource, RoomManagerImpl.class.getResource("dropTables.sql"));
     }
 
     @Test
@@ -59,7 +59,7 @@ public class RoomManagerImplTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void createRoomWithNegativeBedsTest() {
-        Room room = newRoom(2, 203, new BigDecimal(300), null);
+        Room room = newRoom(-2, 203, new BigDecimal(300), null);
 
         manager.createRoom(room);
     }

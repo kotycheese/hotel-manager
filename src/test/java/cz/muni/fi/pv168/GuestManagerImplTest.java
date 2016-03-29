@@ -29,8 +29,8 @@ public class GuestManagerImplTest {
     @Before
     public void setUp() throws Exception {
         dataSource = prepareDataSource();
-        DBUtils.executeSqlScript(dataSource, new URL("createTables.sql"));
-        manager = new GuestManagerImpl(dataSource);
+        DBUtils.executeSqlScript(dataSource, GuestManagerImpl.class.getResource("createTables.sql"));
+        manager = new GuestManagerImpl();
 
     }
 
@@ -44,7 +44,7 @@ public class GuestManagerImplTest {
 
     @After
     public void tearDown() throws Exception {
-        DBUtils.executeSqlScript(dataSource, new URL("dropTables.sql"));
+        DBUtils.executeSqlScript(dataSource, GuestManagerImpl.class.getResource("dropTables.sql"));
     }
 
 

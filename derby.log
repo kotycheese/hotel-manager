@@ -1,11 +1,11 @@
 ----------------------------------------------------------------
-Wed Mar 23 09:58:53 CET 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0153-a2b2-adf6-000000adb970 
-on database directory memory:D:\not fun\škola\vyska\2_2\java_seminar\cz.muni.fi.pv168_hotel-manager_jar_1.0-SNAPSHOT\roommngr-test with class loader sun.misc.Launcher$AppClassLoader@1db9742 
+Tue Mar 29 20:24:49 CEST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0153-c39e-fb56-000000b3daa8 
+on database directory memory:D:\not fun\škola\vyska\2_2\java_seminar\hotel-manager\roommngr-test with class loader sun.misc.Launcher$AppClassLoader@1db9742 
 Loaded from file:/C:/Users/PavelKotala/.m2/repository/org/apache/derby/derby/10.12.1.1/derby-10.12.1.1.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_60-b27
-user.dir=D:\not fun\škola\vyska\2_2\java_seminar\cz.muni.fi.pv168_hotel-manager_jar_1.0-SNAPSHOT
+user.dir=D:\not fun\škola\vyska\2_2\java_seminar\hotel-manager
 os.name=Windows 7
 os.arch=x86
 os.version=6.1

@@ -32,10 +32,10 @@ public class RentManagerImplTest {
     @Before
     public void setUp() throws Exception {
         ds = prepareDataSource();
-        DBUtils.executeSqlScript(ds, new URL("createTables.sql"));
-        rentManager = new RentManagerImpl(ds);
+        DBUtils.executeSqlScript(ds, GuestManagerImpl.class.getResource("createTables.sql"));
+        rentManager = new RentManagerImpl();
         roomManager = new RoomManagerImpl(ds);
-        guestManager = new GuestManagerImpl(ds);
+        guestManager = new GuestManagerImpl();
     }
 
     private static DataSource prepareDataSource() {
@@ -48,7 +48,7 @@ public class RentManagerImplTest {
 
     @After
     public void tearDown() throws Exception {
-        DBUtils.executeSqlScript(ds, new URL("dropTables.sql"));
+        DBUtils.executeSqlScript(ds, GuestManagerImpl.class.getResource("dropTables.sql"));
     }
 
     @Test
