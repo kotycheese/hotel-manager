@@ -1,0 +1,3 @@
+DROP TABLE room;
+DROP TABLE guest;
+DROP TABLE rent;

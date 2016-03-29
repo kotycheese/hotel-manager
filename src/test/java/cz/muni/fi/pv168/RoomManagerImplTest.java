@@ -7,9 +7,8 @@ import org.junit.Test;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.net.URL;
+import java.util.List;
 
 
 import static org.hamcrest.CoreMatchers.*;
@@ -26,38 +25,27 @@ public class RoomManagerImplTest {
     @Before
     public void setUp() throws Exception {
         dataSource = prepareDataSource();
-        try(Connection connection = dataSource.getConnection()) {
-            connection.prepareStatement("CREATE TABLE room ("
-                    + "id bigint primary key generated always as identity,"
-                    + "number int,"
-                    + "beds int,"
-                    + "pricePerNight decimal,"
-                    + "note varchar(255))").executeUpdate();
-        }
+        DBUtils.executeSqlScript(dataSource, new URL("createTables.sql"));
         manager = new RoomManagerImpl(dataSource);
+
     }
 
     private static DataSource prepareDataSource() {
-        EmbeddedDataSource ds = new EmbeddedDataSource();
-        ds.setDatabaseName("memory:roommngr-test");
-        ds.setCreateDatabase("create");
+        EmbeddedDataSource dataSource = new EmbeddedDataSource();
+        dataSource.setDatabaseName("memory:roommngr-test");
+        dataSource.setCreateDatabase("create");
 
-        return ds;
+        return dataSource;
     }
 
     @After
-    public void tearDown() throws SQLException {
-        try(Connection connection = dataSource.getConnection()) {
-            connection.prepareStatement("DROP TABLE room").executeUpdate();
-        }
+    public void tearDown() throws Exception {
+        DBUtils.executeSqlScript(dataSource, new URL("dropTables.sql"));
     }
 
     @Test
     public void createRoomTest() {
-        Room room = new Room();
-        room.setBeds(4);
-        room.setNumber(203);
-        room.setPricePerNight(new BigDecimal(300));
+        Room room = newRoom(2, 203, new BigDecimal(300), null);
 
         manager.createRoom(room);
         Long roomId = room.getId();
@@ -71,50 +59,35 @@ public class RoomManagerImplTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void createRoomWithNegativeBedsTest() {
-        Room room = new Room();
-        room.setBeds(-1);
-        room.setNumber(203);
-        room.setPricePerNight(new BigDecimal(300));
+        Room room = newRoom(2, 203, new BigDecimal(300), null);
 
         manager.createRoom(room);
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void createRoomWithZeroBedsTest() {
-        Room room = new Room();
-        room.setNumber(203);
-        room.setPricePerNight(new BigDecimal(300));
-        room.setBeds(0);
+        Room room = newRoom(0, 203, new BigDecimal(300), null);
 
         manager.createRoom(room);
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void createRoomWithNegativePriceTest() {
-        Room room = new Room();
-        room.setNumber(203);
-        room.setBeds(2);
-        room.setPricePerNight(new BigDecimal(-1));
+        Room room = newRoom(2, 203, new BigDecimal(-300), null);
 
         manager.createRoom(room);
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void createRoomWithZeroPriceTest() {
-        Room room = new Room();
-        room.setBeds(2);
-        room.setNumber(203);
-        room.setPricePerNight(new BigDecimal(0));
+        Room room = newRoom(2, 203, new BigDecimal(0), null);
 
         manager.createRoom(room);
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void createRoomWithSetIdTest() {
-        Room room = new Room();
-        room.setBeds(2);
-        room.setNumber(203);
-        room.setPricePerNight(new BigDecimal(300));
+        Room room = newRoom(2, 203, new BigDecimal(300), null);
         room.setId(20L);
 
         manager.createRoom(room);
@@ -122,15 +95,8 @@ public class RoomManagerImplTest {
 
     @Test
     public void deleteRoomTest() {
-        Room room1 = new Room();
-        room1.setBeds(2);
-        room1.setNumber(203);
-        room1.setPricePerNight(new BigDecimal(300));
-
-        Room room2 = new Room();
-        room2.setBeds(3);
-        room2.setNumber(303);
-        room2.setPricePerNight(new BigDecimal(300));
+        Room room1 = newRoom(2, 203, new BigDecimal(300), null);
+        Room room2 = newRoom(3, 303, new BigDecimal(4203), "expensive");
 
         manager.createRoom(room1);
         manager.createRoom(room2);
@@ -148,8 +114,113 @@ public class RoomManagerImplTest {
         assertThat("retrieved room should not be null", manager.findRoomById(id2), is(not(equalTo(null))));
     }
 
+    @Test (expected = IllegalArgumentException.class)
+    public void deletRoomWithNullIdTest() {
+        Room room1 = newRoom(2, 203, new BigDecimal(300), null);
+
+        manager.deleteRoom(room1);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void deleteNullRoomTest() {
+        manager.deleteRoom(null);
+    }
+
     @Test
     public void updateRoomTest() {
 
+        Room room1 = newRoom(2, 203, new BigDecimal(300), null);
+        Room room2 = newRoom(3, 303, new BigDecimal(4203), "expensive");
+
+        manager.createRoom(room1);
+        manager.createRoom(room2);
+
+        Long id1 = room1.getId();
+        Long id2 = room2.getId();
+
+        Room found1 = manager.findRoomById(id1);
+        Room found2 = manager.findRoomById(id2);
+
+        assertThat("retrieved room should not be null", found1, is(not(equalTo(null))));
+        assertThat("retrieved room should not be null", found2, is(not(equalTo(null))));
+
+        room2.setBeds(4);
+        room2.setNote("nice");
+        room2.setNumber(23);
+        room2.setPricePerNight(new BigDecimal(234));
+        manager.updateRoom(room2);
+
+        Room found2updated = manager.findRoomById(id2);
+        Room found1updated = manager.findRoomById(id1);
+
+        assertThat("retrieved updated room differs from its source", found2updated, is(equalTo(room2)));
+        assertThat("update changed other room", found1updated, is(equalTo(room1)));
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void updateRoomWithZeroBedsTest() {
+        Room room = newRoom(2, 203, new BigDecimal(300), null);
+        manager.createRoom(room);
+
+        room.setBeds(0);
+        manager.updateRoom(room);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void updateRoomWithNegativeBedsTest() {
+        Room room = newRoom(2, 203, new BigDecimal(300), null);
+        manager.createRoom(room);
+
+        room.setBeds(-3);
+        manager.updateRoom(room);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void updateRoomWithNegativePricePerNightTest() {
+        Room room = newRoom(2, 203, new BigDecimal(300), null);
+        manager.createRoom(room);
+
+        room.setPricePerNight(new BigDecimal(-300));
+        manager.updateRoom(room);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void updateRoomWithNullIdTest() {
+        Room room = newRoom(2, 203, new BigDecimal(300), null);
+        manager.createRoom(room);
+
+        room.setId(null);
+        manager.updateRoom(room);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void updateNullRoomTest() {
+        manager.updateRoom(null);
+    }
+
+    @Test
+    public void findAllRoomsTest() {
+
+        Room room1 = newRoom(2, 203, new BigDecimal(300), null);
+        Room room2 = newRoom(3, 303, new BigDecimal(4203), "expensive");
+
+        manager.createRoom(room1);
+        manager.createRoom(room2);
+
+        List<Room> rooms = manager.findAllRooms();
+
+        assertThat("returned collection size was expected to be 2, found: " + rooms.size(), rooms.size(), is(equalTo(2)));
+        assertThat("returned collection does not contain room: " + room1, rooms, hasItem(room1));
+        assertThat("returned collection does not contain room: " + room2, rooms, hasItem(room2));
+    }
+
+    private Room newRoom(int beds, int number, BigDecimal pricePerNight, String note) {
+        Room room = new Room();
+        room.setNote(note);
+        room.setPricePerNight(pricePerNight);
+        room.setBeds(beds);
+        room.setNumber(number);
+
+        return room;
     }
 }

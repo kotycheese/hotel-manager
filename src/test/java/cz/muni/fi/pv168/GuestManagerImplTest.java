@@ -1,5 +1,6 @@
 package cz.muni.fi.pv168;
 
+import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -11,19 +12,42 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+
+import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.sql.DataSource;
 
 
 public class GuestManagerImplTest {
     private GuestManagerImpl manager;
     private final LocalDate DT = LocalDate.of(2005, 4, 3);
+    private DataSource dataSource;
 
     @Before
-    public void setUp() throws SQLException {
-        manager = new GuestManagerImpl();
+    public void setUp() throws Exception {
+        dataSource = prepareDataSource();
+        DBUtils.executeSqlScript(dataSource, new URL("createTables.sql"));
+        manager = new GuestManagerImpl(dataSource);
+
     }
-    
+
+    private static DataSource prepareDataSource() {
+        EmbeddedDataSource dataSource = new EmbeddedDataSource();
+        dataSource.setDatabaseName("memory:guestmngr-test");
+        dataSource.setCreateDatabase("create");
+
+        return dataSource;
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        DBUtils.executeSqlScript(dataSource, new URL("dropTables.sql"));
+    }
+
+
     @Test
     public void createGrave() {
         Guest guest = newGuest("Josef Slota", DT, "slota@josef.com");
