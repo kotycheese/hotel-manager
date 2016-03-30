@@ -13,8 +13,8 @@ CREATE TABLE guest (
 
 CREATE TABLE rent (
     id bigint primary key generated always as identity,
-    pricePerNight decimal,
-    guest bigint,
-    room bigint,
+    price decimal,
+    guestid bigint,
+    roomid bigint,
     startTime date,
     endTime date);

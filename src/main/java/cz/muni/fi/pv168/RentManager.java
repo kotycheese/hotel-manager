@@ -17,8 +17,6 @@ public interface RentManager {
     
     void deleteRent(Rent rent);
     
-    boolean isRoomAvailable(Room room);
-    
     Rent findRentById(Long id);
     
     

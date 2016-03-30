@@ -11,7 +11,6 @@ public class Rent {
     private Room room;
     private LocalDate startTime;
     private LocalDate endTime;
-    private boolean active;
     private Long id;
 
     public Long getId() {
@@ -62,17 +61,9 @@ public class Rent {
         this.endTime = endTime;
     }
 
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
     @Override
     public String toString() {
-        return "Rent{" + "price=" + price + ", guest=" + guest + ", room=" + room + ", startTime=" + startTime + ", endTime=" + endTime + ", active=" + active + ", id=" + id + '}';
+        return "Rent{" + "price=" + price + ", guest=" + guest + ", room=" + room + ", startTime=" + startTime + ", endTime=" + endTime + ", id=" + id + '}';
     }
 
     @Override
@@ -83,7 +74,6 @@ public class Rent {
         hash = 97 * hash + Objects.hashCode(this.room);
         hash = 97 * hash + Objects.hashCode(this.startTime);
         hash = 97 * hash + Objects.hashCode(this.endTime);
-        hash = 97 * hash + (this.active ? 1 : 0);
         hash = 97 * hash + Objects.hashCode(this.id);
         return hash;
     }
@@ -110,9 +100,6 @@ public class Rent {
             return false;
         }
         if (!Objects.equals(this.endTime, other.endTime)) {
-            return false;
-        }
-        if (this.active != other.active) {
             return false;
         }
         return Objects.equals(this.id, other.id);

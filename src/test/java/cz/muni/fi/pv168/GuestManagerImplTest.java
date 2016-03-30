@@ -1,8 +1,10 @@
 package cz.muni.fi.pv168;
 
+import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -19,6 +21,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 
 public class GuestManagerImplTest {
@@ -30,7 +36,7 @@ public class GuestManagerImplTest {
     public void setUp() throws Exception {
         dataSource = prepareDataSource();
         DBUtils.executeSqlScript(dataSource, GuestManagerImpl.class.getResource("createTables.sql"));
-        manager = new GuestManagerImpl();
+        manager = new GuestManagerImpl(dataSource);
 
     }
 
@@ -49,7 +55,7 @@ public class GuestManagerImplTest {
 
 
     @Test
-    public void createGrave() {
+    public void createGuest() {
         Guest guest = newGuest("Josef Slota", DT, "slota@josef.com");
         manager.createGuest(guest);
 
@@ -68,7 +74,7 @@ public class GuestManagerImplTest {
     }
     
     @Test
-    public void createGraveWithWrongValues() {
+    public void createGuestWithWrongValues() {
         LocalDate dt = LocalDate.of(2005, 4, 3);
         Guest guest = newGuest("Josef Slota", DT, "slotajosef.com");
         try {
@@ -106,7 +112,7 @@ public class GuestManagerImplTest {
     }
     
     @Test
-    public void deleteGrave() {
+    public void deleteGuest() {
         LocalDate dtl = LocalDate.of(2000, 2, 1);
 
         Guest g1 = newGuest("Josef Slota", DT, "slota@josef.com");
@@ -125,7 +131,7 @@ public class GuestManagerImplTest {
     }
     
     @Test
-    public void updateGraveWithWrongAttributes() {
+    public void updateGuestWithWrongAttributes() {
 
         Guest guest = newGuest("Josef Slota", DT, "slota@josef.com");
         manager.createGuest(guest);
@@ -146,6 +152,19 @@ public class GuestManagerImplTest {
         } catch (IllegalArgumentException ex) {
             //OK
         }
+    }
+    @Test
+    public void findAllRoomsTest() {
+
+        Guest guest1 = newGuest("Josef Slota", DT, "slota@josef.com");
+        Guest guest2 = newGuest("Nikdo Nic", DT, "slota@josef.com");
+
+        manager.createGuest(guest1);
+        manager.createGuest(guest2);
+
+        List<Guest> guests = manager.findAllGuests();
+
+        assertThat("returned collection size was expected to be 2, found: " + guests.size(), guests.size(), is(equalTo(2)));
     }
     
     private static Guest newGuest(String name, LocalDate born, String email){

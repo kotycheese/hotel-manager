@@ -33,9 +33,9 @@ public class RentManagerImplTest {
     public void setUp() throws Exception {
         ds = prepareDataSource();
         DBUtils.executeSqlScript(ds, GuestManagerImpl.class.getResource("createTables.sql"));
-        rentManager = new RentManagerImpl();
+        rentManager = new RentManagerImpl(ds);
         roomManager = new RoomManagerImpl(ds);
-        guestManager = new GuestManagerImpl();
+        guestManager = new GuestManagerImpl(ds);
     }
 
     private static DataSource prepareDataSource() {
@@ -302,12 +302,7 @@ public class RentManagerImplTest {
         Rent found1updated = rentManager.findRentById(rent1.getId());
 
         assertThat("returned deleted rent should be null", found1updated, is(equalTo(null)));
-        assertThat("delete changed other room", found2updated, is(equalTo(rent1)));
-    }
-
-    @Test
-    public void testIsRoomAvailable() throws Exception {
-
+        assertThat("delete changed other room", found2updated, is(equalTo(rent2)));
     }
 
     private static Guest newGuest(String name, LocalDate born, String email){
