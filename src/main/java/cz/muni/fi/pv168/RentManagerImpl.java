@@ -157,30 +157,8 @@ public class RentManagerImpl implements RentManager {
                 "SELECT id, price, guestId, roomId, startTime, endTime FROM rent WHERE roomId = ?")) {
             st.setLong(1, room.getId());
             ResultSet rs = st.executeQuery();
-            
-            List<Rent> result = new ArrayList<>();
-            while (rs.next()) {
-                Rent rent = new Rent();
-                Guest guest;
-                Room room1;
-                
-                guestManager = new GuestManagerImpl(dataSource);
-                roomManager = new RoomManagerImpl(dataSource);
-                guest = guestManager.findGuestById(rs.getLong("guestId"));
-                room1 = roomManager.findRoomById(rs.getLong("roomId"));
-                
-                rent.setGuest(guest);
-                rent.setRoom(room1);
-                rent.setId(rs.getLong("id"));
-                rent.setPrice(rs.getBigDecimal("price"));
-                Date start = rs.getDate("startTime");
-                Date end = rs.getDate("endTime");
-                rent.setStartTime(start.toLocalDate());
-                rent.setEndTime(end.toLocalDate());
-                
-                result.add(rent);
-            }
-            return result;
+
+            return getRentsFromResultSet(rs);
             
         } catch (SQLException ex) {
             throw new ServiceFailureException(
@@ -199,30 +177,8 @@ public class RentManagerImpl implements RentManager {
                 "SELECT id, price, guestId, roomId, startTime, endTime FROM rent WHERE guestId = ?")) {
             st.setLong(1, guest.getId());
             ResultSet rs = st.executeQuery();
-            
-            List<Rent> result = new ArrayList<>();
-            while (rs.next()) {
-                Rent rent = new Rent();
-                Guest guest1;
-                Room room1;
-                
-                guestManager = new GuestManagerImpl(dataSource);
-                roomManager = new RoomManagerImpl(dataSource);
-                guest1 = guestManager.findGuestById(rs.getLong("guestId"));
-                room1 = roomManager.findRoomById(rs.getLong("roomId"));
-                
-                rent.setGuest(guest1);
-                rent.setRoom(room1);
-                rent.setId(rs.getLong("id"));
-                rent.setPrice(rs.getBigDecimal("price"));
-                Date start = rs.getDate("startTime");
-                Date end = rs.getDate("endTime");
-                rent.setStartTime(start.toLocalDate());
-                rent.setEndTime(end.toLocalDate());
-                
-                result.add(rent);
-            }
-            return result;
+
+            return getRentsFromResultSet(rs);
             
         } catch (SQLException ex) {
             throw new ServiceFailureException(
@@ -239,29 +195,7 @@ public class RentManagerImpl implements RentManager {
 
             ResultSet rs = st.executeQuery();
 
-            List<Rent> result = new ArrayList<>();
-            while (rs.next()) {
-                Rent rent = new Rent();
-                Guest guest;
-                Room room;
-                
-                guestManager = new GuestManagerImpl(dataSource);
-                roomManager = new RoomManagerImpl(dataSource);
-                guest = guestManager.findGuestById(rs.getLong("guestId"));
-                room = roomManager.findRoomById(rs.getLong("roomId"));
-                
-                rent.setGuest(guest);
-                rent.setRoom(room);
-                rent.setId(rs.getLong("id"));
-                rent.setPrice(rs.getBigDecimal("price"));
-                Date start = rs.getDate("startTime");
-                Date end = rs.getDate("endTime");
-                rent.setStartTime(start.toLocalDate());
-                rent.setEndTime(end.toLocalDate());
-                
-                result.add(rent);
-            }
-            return result;
+            return getRentsFromResultSet(rs);
 
         } catch (SQLException ex) {
             throw new ServiceFailureException(
@@ -333,5 +267,31 @@ public class RentManagerImpl implements RentManager {
             throw new ServiceFailureException("Error when retrieving rent with id " + id, ex);
         }
     }
-    
+
+    private List<Rent> getRentsFromResultSet(ResultSet rs) throws SQLException {
+        List<Rent> result = new ArrayList<>();
+        while (rs.next()) {
+            Rent rent = new Rent();
+            Guest guest;
+            Room room;
+
+            guestManager = new GuestManagerImpl(dataSource);
+            roomManager = new RoomManagerImpl(dataSource);
+            guest = guestManager.findGuestById(rs.getLong("guestId"));
+            room = roomManager.findRoomById(rs.getLong("roomId"));
+
+            rent.setGuest(guest);
+            rent.setRoom(room);
+            rent.setId(rs.getLong("id"));
+            rent.setPrice(rs.getBigDecimal("price"));
+            Date start = rs.getDate("startTime");
+            Date end = rs.getDate("endTime");
+            rent.setStartTime(start.toLocalDate());
+            rent.setEndTime(end.toLocalDate());
+
+            result.add(rent);
+        }
+
+        return result;
+    }
 }
