@@ -52,7 +52,7 @@ public class Room {
 
     @Override
     public String toString() {
-        return "Room{" + "id=" + id + ", number=" + number + ", beds=" + beds + ", pricePerNight=" + pricePerNight + ", note=" + note + '}';
+        return number + "";
     }
 
     public Long getId() {

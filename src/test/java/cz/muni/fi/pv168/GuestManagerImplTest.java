@@ -28,7 +28,7 @@ import static org.junit.Assert.assertThat;
 
 
 public class GuestManagerImplTest {
-    private GuestManagerImpl manager;
+    private GuestManager manager;
     private final LocalDate DT = LocalDate.of(2005, 4, 3);
     private DataSource dataSource;
 
@@ -36,7 +36,9 @@ public class GuestManagerImplTest {
     public void setUp() throws Exception {
         dataSource = prepareDataSource();
         DBUtils.executeSqlScript(dataSource, GuestManagerImpl.class.getResource("createTables.sql"));
-        manager = new GuestManagerImpl(dataSource);
+        GuestManagerImpl.deleteInstance();
+        GuestManagerImpl.setDataSource(dataSource);
+        manager = GuestManagerImpl.getInstance();
 
     }
 

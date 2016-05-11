@@ -18,9 +18,28 @@ public class GuestManagerImpl implements GuestManager {
     private static final String EMAIL_PATTERN = 
 		"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
 		+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+    private static GuestManager instance;
     
-    public GuestManagerImpl(DataSource dataSource){
+    private GuestManagerImpl(DataSource dataSource){
         this.dataSource = dataSource;
+    }
+    
+    public static void setDataSource(DataSource dataSource) {
+        if(instance != null) {
+            throw new ServiceFailureException("instance already initialized");
+        }
+        instance = new GuestManagerImpl(dataSource);
+    }
+    
+    public static GuestManager getInstance() {
+        if(instance == null) {
+            throw new EntityNotFoundException("instance not initialized, call getInstance() first");
+        }
+        return instance;
+    }
+    
+    public static void deleteInstance() {
+        instance = null;
     }
 
     @Override
@@ -185,7 +204,7 @@ public class GuestManagerImpl implements GuestManager {
                 Date date = rs.getDate("born");
                 guest.setBorn(date.toLocalDate());
                 guest.setEmail(rs.getString("email"));
-                guest.setName("name");
+                guest.setName(rs.getString("name"));
                 result.add(guest);
             }
             return result;

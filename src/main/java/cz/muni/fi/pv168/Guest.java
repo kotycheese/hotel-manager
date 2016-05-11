@@ -48,7 +48,7 @@ public class Guest {
 
     @Override
     public String toString() {
-        return "Guest{" + "id=" + id + ", name=" + name + ", born=" + born + ", email=" + email + '}';
+        return name;
     }
     public Long getId() {
         return id;

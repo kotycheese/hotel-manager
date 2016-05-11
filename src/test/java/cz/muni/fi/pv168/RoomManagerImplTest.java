@@ -26,7 +26,9 @@ public class RoomManagerImplTest {
     public void setUp() throws Exception {
         dataSource = prepareDataSource();
         DBUtils.executeSqlScript(dataSource, RoomManagerImpl.class.getResource("createTables.sql"));
-        manager = new RoomManagerImpl(dataSource);
+        RoomManagerImpl.deleteInstance();
+        RoomManagerImpl.setDataSource(dataSource);
+        manager = RoomManagerImpl.getInstance();
 
     }
 

@@ -6,10 +6,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RoomManagerImpl implements RoomManager {
-    DataSource ds;
+    private DataSource ds;
+    private static RoomManager instance;
 
-    public RoomManagerImpl(DataSource ds) {
+    private RoomManagerImpl(DataSource ds) {
         this.ds = ds;
+    }
+
+    public static void setDataSource(DataSource dataSource) {
+        if(instance != null) {
+            throw new ServiceFailureException("instance already initialized");
+        }
+        instance = new RoomManagerImpl(dataSource);
+    }
+    
+    public static RoomManager getInstance() {
+        if(instance == null) {
+            throw new EntityNotFoundException("instance not initialized, call getInstance() first");
+        }
+        return instance;
+    }
+    
+    public static void deleteInstance() {
+        instance = null;
     }
 
     @Override

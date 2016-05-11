@@ -1,44 +1,45 @@
 package cz.muni.fi.pv168.swing;
 
+import cz.muni.fi.pv168.Rent;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.table.AbstractTableModel;
-import cz.muni.fi.pv168.Guest;
-import java.time.LocalDate;
-import java.util.Collections;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import javax.swing.table.AbstractTableModel;
 
 /**
  *
  * @author Pavel Kotala, 437164
  */
-public class GuestTableModel extends AbstractTableModel {
+public class RentTableModel extends AbstractTableModel {
 
-    private List<Guest> guests = new ArrayList<>();
-    
+    List<Rent> rents = new ArrayList<>();
     @Override
     public int getRowCount() {
-        return guests.size();
+        return rents.size();
     }
 
     @Override
     public int getColumnCount() {
-        return 4;
+        return 6;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Guest guest = guests.get(rowIndex);
+        Rent rent = rents.get(rowIndex);
         switch(columnIndex) {
             case 0:
-                return guest.getId();
+                return rent.getId();
             case 1:
-                return guest.getName();
+                return rent.getGuest();
             case 2:
-                return guest.getBorn();
+                return rent.getRoom();
             case 3:
-                return guest.getEmail();
+                return rent.getStartDate();
+            case 4:
+                return rent.getEndDate();
+            case 5:
+                return rent.getPrice();
             default:
                 throw new IllegalArgumentException("Illegal column index: " + columnIndex);
         }
@@ -51,25 +52,26 @@ public class GuestTableModel extends AbstractTableModel {
             case 0:
                 return bundle.getString("id");
             case 1:
-                return bundle.getString("name");
+                return bundle.getString("guest");
             case 2:
-                return bundle.getString("born");
+                return bundle.getString("room");
             case 3:
-                return bundle.getString("email");
+                return bundle.getString("start_date");
+            case 4:
+                return bundle.getString("end_date");
+            case 5:
+                return bundle.getString("price");
             default:
                 throw new IllegalArgumentException("columnIndex");
         }
     }
     
-    public void setGuests(List<Guest> guests) {
-        this.guests = guests;
-        fireTableRowsInserted(0, guests.size()-1);
+    public void setRents(List<Rent> rents) {
+        this.rents = rents;
+        fireTableRowsInserted(0, rents.size()-1);
     }
     
-    public Guest getGuestAt(int i) {
-        return guests.get(i);
-    }
-    public List<Guest> getGuests() {
-        return Collections.unmodifiableList(guests);
+    public Rent getRentAt(int i) {
+        return rents.get(i);
     }
 }

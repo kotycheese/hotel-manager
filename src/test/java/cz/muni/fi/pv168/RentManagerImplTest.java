@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
  */
 public class RentManagerImplTest {
 
-    private DataSource ds;
+    private DataSource dataSource;
     private RentManager rentManager;
     private RoomManager roomManager;
     private GuestManager guestManager;
@@ -31,11 +31,17 @@ public class RentManagerImplTest {
 
     @Before
     public void setUp() throws Exception {
-        ds = prepareDataSource();
-        DBUtils.executeSqlScript(ds, GuestManagerImpl.class.getResource("createTables.sql"));
-        rentManager = new RentManagerImpl(ds);
-        roomManager = new RoomManagerImpl(ds);
-        guestManager = new GuestManagerImpl(ds);
+        dataSource = prepareDataSource();
+        DBUtils.executeSqlScript(dataSource, GuestManagerImpl.class.getResource("createTables.sql"));
+        GuestManagerImpl.deleteInstance();
+        RentManagerImpl.deleteInstance();
+        RoomManagerImpl.deleteInstance();
+        GuestManagerImpl.setDataSource(dataSource);
+        RoomManagerImpl.setDataSource(dataSource);
+        RentManagerImpl.setDataSource(dataSource);
+        rentManager = RentManagerImpl.getInstance();
+        roomManager = RoomManagerImpl.getInstance();
+        guestManager = GuestManagerImpl.getInstance();
     }
 
     private static DataSource prepareDataSource() {
@@ -48,7 +54,7 @@ public class RentManagerImplTest {
 
     @After
     public void tearDown() throws Exception {
-        DBUtils.executeSqlScript(ds, GuestManagerImpl.class.getResource("dropTables.sql"));
+        DBUtils.executeSqlScript(dataSource, GuestManagerImpl.class.getResource("dropTables.sql"));
     }
 
     @Test
@@ -201,8 +207,8 @@ public class RentManagerImplTest {
         rent2.setPrice(new BigDecimal(20));
         rent2.setRoom(room1);
         rent2.setGuest(guest1);
-        rent2.setEndTime(date2);
-        rent2.setStartTime(date1);
+        rent2.setEndDate(date2);
+        rent2.setStartDate(date1);
 
         rentManager.updateRent(rent2);
 
@@ -329,8 +335,8 @@ public class RentManagerImplTest {
         rent.setPrice(price);
         rent.setGuest(guest);
         rent.setRoom(room);
-        rent.setStartTime(startTime);
-        rent.setEndTime(endTime);
+        rent.setStartDate(startTime);
+        rent.setEndDate(endTime);
 
         return rent;
     }

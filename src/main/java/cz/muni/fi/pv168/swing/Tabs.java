@@ -5,11 +5,33 @@
  */
 package cz.muni.fi.pv168.swing;
 
+import cz.muni.fi.pv168.Guest;
+import cz.muni.fi.pv168.GuestManager;
+import cz.muni.fi.pv168.GuestManagerImpl;
+import cz.muni.fi.pv168.Rent;
+import cz.muni.fi.pv168.RentManager;
+import cz.muni.fi.pv168.RentManagerImpl;
+import cz.muni.fi.pv168.Room;
+import cz.muni.fi.pv168.RoomManager;
+import cz.muni.fi.pv168.RoomManagerImpl;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import javax.swing.JDialog;
+import javax.swing.SwingWorker;
+
 /**
  *
  * @author PavelKotala
  */
 public class Tabs extends javax.swing.JFrame {
+    private final RoomManager roomManager = RoomManagerImpl.getInstance();
+    private final GuestManager guestManager = GuestManagerImpl.getInstance();
+    private final RentManager rentManager = RentManagerImpl.getInstance();
+    private final Tabs tabs = this;
 
     /**
      * Creates new form Tabs
@@ -28,111 +50,186 @@ public class Tabs extends javax.swing.JFrame {
     private void initComponents() {
 
         jTabbedPane1 = new javax.swing.JTabbedPane();
-        jPanel1 = new javax.swing.JPanel();
+        roomsPanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList();
-        jButton1 = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
+        roomsTable = new javax.swing.JTable();
+        newRoomButton = new javax.swing.JButton();
+        editRoomButton = new javax.swing.JButton();
+        deleteRoomButton = new javax.swing.JButton();
+        guestsPanel = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jList2 = new javax.swing.JList();
-        jButton5 = new javax.swing.JButton();
-        jPanel3 = new javax.swing.JPanel();
+        guestsTable = new javax.swing.JTable();
+        newGuestButton = new javax.swing.JButton();
+        editGuestButton = new javax.swing.JButton();
+        deleteGuestButton = new javax.swing.JButton();
+        rentsPanel = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jList3 = new javax.swing.JList();
-        jButton8 = new javax.swing.JButton();
+        rentsTable = new javax.swing.JTable();
+        newRentButton = new javax.swing.JButton();
+        editRentButton = new javax.swing.JButton();
+        deleteRentButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jList1.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
+        roomsTable.setModel(new RoomTableModel());
+        roomsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane1.setViewportView(roomsTable);
+
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("texty"); // NOI18N
+        newRoomButton.setText(bundle.getString("new_room")); // NOI18N
+        newRoomButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newRoomButtonActionPerformed(evt);
+            }
         });
-        jScrollPane1.setViewportView(jList1);
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("cz/muni/fi/pv168/swing/texty"); // NOI18N
-        jButton1.setText(bundle.getString("new_room")); // NOI18N
+        editRoomButton.setText(bundle.getString("edit_room")); // NOI18N
+        editRoomButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editRoomButtonActionPerformed(evt);
+            }
+        });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
+        deleteRoomButton.setText(bundle.getString("delete_room")); // NOI18N
+        deleteRoomButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteRoomButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout roomsPanelLayout = new javax.swing.GroupLayout(roomsPanel);
+        roomsPanel.setLayout(roomsPanelLayout);
+        roomsPanelLayout.setHorizontalGroup(
+            roomsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(roomsPanelLayout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 417, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton1)
+                .addGroup(roomsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(deleteRoomButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(editRoomButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(newRoomButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        roomsPanelLayout.setVerticalGroup(
+            roomsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 355, Short.MAX_VALUE)
+            .addGroup(roomsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1)
+                .addComponent(newRoomButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(editRoomButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(deleteRoomButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab(bundle.getString("rooms"), jPanel1); // NOI18N
+        jTabbedPane1.addTab(bundle.getString("rooms"), roomsPanel); // NOI18N
 
-        jList2.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
+        guestsTable.setModel(new GuestTableModel());
+        guestsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane2.setViewportView(guestsTable);
+
+        newGuestButton.setText(bundle.getString("new_guest")); // NOI18N
+        newGuestButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newGuestButtonActionPerformed(evt);
+            }
         });
-        jScrollPane2.setViewportView(jList2);
 
-        jButton5.setText(bundle.getString("new_guest")); // NOI18N
+        editGuestButton.setText(bundle.getString("edit_guest")); // NOI18N
+        editGuestButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editGuestButtonActionPerformed(evt);
+            }
+        });
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE)
+        deleteGuestButton.setText(bundle.getString("delete_guest")); // NOI18N
+        deleteGuestButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteGuestButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout guestsPanelLayout = new javax.swing.GroupLayout(guestsPanel);
+        guestsPanel.setLayout(guestsPanelLayout);
+        guestsPanelLayout.setHorizontalGroup(
+            guestsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(guestsPanelLayout.createSequentialGroup()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 415, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton5)
+                .addGroup(guestsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(deleteGuestButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(newGuestButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(editGuestButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        guestsPanelLayout.setVerticalGroup(
+            guestsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 355, Short.MAX_VALUE)
+            .addGroup(guestsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton5)
+                .addComponent(newGuestButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(editGuestButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(deleteGuestButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab(bundle.getString("guests"), jPanel2); // NOI18N
+        jTabbedPane1.addTab(bundle.getString("guests"), guestsPanel); // NOI18N
 
-        jList3.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
+        rentsTable.setModel(new RentTableModel());
+        rentsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane3.setViewportView(rentsTable);
+
+        newRentButton.setText(bundle.getString("new_rent")); // NOI18N
+        newRentButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newRentButtonActionPerformed(evt);
+            }
         });
-        jScrollPane3.setViewportView(jList3);
 
-        jButton8.setText(bundle.getString("new_rent")); // NOI18N
+        editRentButton.setText(bundle.getString("edit_rent")); // NOI18N
+        editRentButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editRentButtonActionPerformed(evt);
+            }
+        });
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 307, Short.MAX_VALUE)
+        deleteRentButton.setText(bundle.getString("delete_rent")); // NOI18N
+        deleteRentButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteRentButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout rentsPanelLayout = new javax.swing.GroupLayout(rentsPanel);
+        rentsPanel.setLayout(rentsPanelLayout);
+        rentsPanelLayout.setHorizontalGroup(
+            rentsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(rentsPanelLayout.createSequentialGroup()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton8)
+                .addGroup(rentsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(deleteRentButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(newRentButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(editRentButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
-            .addGroup(jPanel3Layout.createSequentialGroup()
+        rentsPanelLayout.setVerticalGroup(
+            rentsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 355, Short.MAX_VALUE)
+            .addGroup(rentsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton8)
+                .addComponent(newRentButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(editRentButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(deleteRentButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab(bundle.getString("rents"), jPanel3); // NOI18N
+        jTabbedPane1.addTab(bundle.getString("rents"), rentsPanel); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -147,6 +244,148 @@ public class Tabs extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void editRoomButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editRoomButtonActionPerformed
+        RoomDialog roomDialog = new RoomDialog(this, true);
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("texty");
+        int selected = roomsTable.getSelectedRow();
+        RoomTableModel roomModel = (RoomTableModel) roomsTable.getModel();
+        Room room = roomModel.getRoomAt(selected);
+        
+        roomDialog.setHeaderText(bundle.getString("edit_room"));
+        roomDialog.setBedsText(room.getBeds() + "");
+        roomDialog.setNumberText(room.getNumber() + "");
+        roomDialog.setPricePerNightText(room.getPricePerNight().toString());
+        roomDialog.setNoteText(room.getNote());
+        roomDialog.setId(room.getId());
+        
+        roomDialog.setVisible(true);
+    }//GEN-LAST:event_editRoomButtonActionPerformed
+
+    private void newRoomButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newRoomButtonActionPerformed
+        RoomDialog roomDialog = new RoomDialog(this, true);
+        roomDialog.setVisible(true);
+    }//GEN-LAST:event_newRoomButtonActionPerformed
+
+    private void deleteRoomButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteRoomButtonActionPerformed
+        RoomTableModel roomModel = (RoomTableModel)roomsTable.getModel();
+        Room room = roomModel.getRoomAt(roomsTable.getSelectedRow());
+        
+        final JDialog process = new ProcessingDialog(this, true);
+        
+        SwingWorker sw = new RoomSwingWorker(room, true) {
+            @Override
+            protected void done() {
+                process.setVisible(false);
+                try {
+                    List<Room> rooms = get();
+                    tabs.refreshRooms(rooms);
+                } catch (ExecutionException ex) {
+                    ErrorDialog error = new ErrorDialog(tabs, false);
+                    error.setText("Exception thrown in doInBackground(): " + ex.getCause());
+                    error.setVisible(true);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException("Operation interrupted (this should never happen)",ex);
+                }
+            }
+        };
+        sw.execute();
+        process.setVisible(true);
+    }//GEN-LAST:event_deleteRoomButtonActionPerformed
+
+    private void newGuestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newGuestButtonActionPerformed
+        GuestDialog guestDialog = new GuestDialog(this, true);
+        guestDialog.setVisible(true);
+    }//GEN-LAST:event_newGuestButtonActionPerformed
+
+    private void editGuestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editGuestButtonActionPerformed
+        GuestDialog guestDialog = new GuestDialog(this, true);
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("texty");
+        int selected = guestsTable.getSelectedRow();
+        GuestTableModel guestModel = (GuestTableModel) guestsTable.getModel();
+        Guest guest = guestModel.getGuestAt(selected);
+        
+        guestDialog.setHeaderText(bundle.getString("edit_guest"));
+        guestDialog.setDate(Date.from(guest.getBorn().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+        guestDialog.setNameText(guest.getName());
+        guestDialog.setEmailText(guest.getEmail());
+        guestDialog.setId(guest.getId());
+        
+        guestDialog.setVisible(true);
+    }//GEN-LAST:event_editGuestButtonActionPerformed
+
+    private void deleteGuestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteGuestButtonActionPerformed
+        GuestTableModel guestModel = (GuestTableModel)guestsTable.getModel();
+        Guest guest = guestModel.getGuestAt(guestsTable.getSelectedRow());
+        
+        final JDialog process = new ProcessingDialog(this, true);
+        
+        SwingWorker sw = new GuestSwingWorker(guest, true) {
+            @Override
+            protected void done() {
+                process.setVisible(false);
+                try {
+                    List<Guest> guests = get();
+                    tabs.refreshGuests(guests);
+                } catch (ExecutionException ex) {
+                    ErrorDialog error = new ErrorDialog(tabs, false);
+                    error.setText("Exception thrown in doInBackground(): " + ex.getCause());
+                    error.setVisible(true);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException("Operation interrupted (this should never happen)",ex);
+                }
+            }
+        };
+        sw.execute();
+        process.setVisible(true);
+    }//GEN-LAST:event_deleteGuestButtonActionPerformed
+
+    private void newRentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newRentButtonActionPerformed
+        RentDialog rentDialog = new RentDialog(this, true);
+        rentDialog.setVisible(true);
+    }//GEN-LAST:event_newRentButtonActionPerformed
+
+    private void editRentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editRentButtonActionPerformed
+        RentDialog rentDialog = new RentDialog(this, true);
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("texty");
+        int selected = rentsTable.getSelectedRow();
+        RentTableModel rentModel = (RentTableModel) rentsTable.getModel();
+        Rent rent = rentModel.getRentAt(selected);
+        
+        rentDialog.setHeaderText("edit_rent");
+        rentDialog.setId(rent.getId());
+        rentDialog.setStartDate(Date.from(rent.getStartDate().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+        rentDialog.setEndDate(Date.from(rent.getEndDate().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+        rentDialog.setPrice(rent.getPrice().toString());
+        
+        rentDialog.setVisible(true);
+    }//GEN-LAST:event_editRentButtonActionPerformed
+
+    private void deleteRentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteRentButtonActionPerformed
+        RentTableModel rentModel = (RentTableModel)rentsTable.getModel();
+        Rent rent = rentModel.getRentAt(rentsTable.getSelectedRow());
+        
+        final JDialog process = new ProcessingDialog(this, true);
+        
+        SwingWorker sw = new RentSwingWorker(rent, true) {
+            @Override
+            protected void done() {
+                process.setVisible(false);
+                try {
+                    List<Rent> rents = get();
+                    tabs.refreshRents(rents);
+                } catch (ExecutionException ex) {
+                    ErrorDialog error = new ErrorDialog(tabs, false);
+                    error.setText("Exception thrown in doInBackground(): " + ex.getCause());
+                    error.setVisible(true);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException("Operation interrupted (this should never happen)",ex);
+                }
+            }
+        };
+        sw.execute();
+        process.setVisible(true);
+    }//GEN-LAST:event_deleteRentButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -184,18 +423,49 @@ public class Tabs extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton8;
-    private javax.swing.JList jList1;
-    private javax.swing.JList jList2;
-    private javax.swing.JList jList3;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
+    private javax.swing.JButton deleteGuestButton;
+    private javax.swing.JButton deleteRentButton;
+    private javax.swing.JButton deleteRoomButton;
+    private javax.swing.JButton editGuestButton;
+    private javax.swing.JButton editRentButton;
+    private javax.swing.JButton editRoomButton;
+    private javax.swing.JPanel guestsPanel;
+    private javax.swing.JTable guestsTable;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JButton newGuestButton;
+    private javax.swing.JButton newRentButton;
+    private javax.swing.JButton newRoomButton;
+    private javax.swing.JPanel rentsPanel;
+    private javax.swing.JTable rentsTable;
+    private javax.swing.JPanel roomsPanel;
+    private javax.swing.JTable roomsTable;
     // End of variables declaration//GEN-END:variables
+
+    public void refreshRooms(List<Room> rooms) {
+        RoomTableModel roomModel = (RoomTableModel)roomsTable.getModel();
+        roomModel.setRooms(rooms);
+    }
+    
+    public void refreshGuests(List<Guest> guests) {
+        GuestTableModel guestModel = (GuestTableModel)guestsTable.getModel();
+        guestModel.setGuests(guests);
+    }
+    
+    public void refreshRents(List<Rent> rents) {
+        RentTableModel rentModel = (RentTableModel)rentsTable.getModel();
+        rentModel.setRents(rents);
+    }
+    
+    public List<Room> getRooms() {
+        RoomTableModel roomModel = (RoomTableModel)roomsTable.getModel();
+        return roomModel.getRooms();
+    }
+    
+    public List<Guest> getGuests() {
+        GuestTableModel guestModel = (GuestTableModel)guestsTable.getModel();
+        return guestModel.getGuests();
+    }
 }

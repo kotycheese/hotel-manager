@@ -13,11 +13,30 @@ import javax.sql.DataSource;
 public class RentManagerImpl implements RentManager {
     
     private final DataSource dataSource;
-    private GuestManagerImpl guestManager;
-    private RoomManagerImpl roomManager;
+    private GuestManager guestManager;
+    private RoomManager roomManager;
+    private static RentManager instance;
     
-    public RentManagerImpl(DataSource dataSource){
+    private RentManagerImpl(DataSource dataSource){
         this.dataSource = dataSource;
+    }
+    
+     public static void setDataSource(DataSource dataSource) {
+        if(instance != null) {
+            throw new ServiceFailureException("instance already initialized");
+        }
+        instance = new RentManagerImpl(dataSource);
+    }
+    
+    public static RentManager getInstance() {
+        if(instance == null) {
+            throw new EntityNotFoundException("instance not initialized, call getInstance() first");
+        }
+        return instance;
+    }
+    
+    public static void deleteInstance() {
+        instance = null;
     }
     
     private void validateRent(Rent rent){
@@ -39,13 +58,13 @@ public class RentManagerImpl implements RentManager {
         //if(this.roomManager.findRoomById(rent.getRoom().getId()) == null){
         //    throw new IllegalArgumentException("room must not be null");
         //}
-        if(rent.getStartTime() == null){
+        if(rent.getStartDate() == null){
             throw new IllegalArgumentException("start time must not be null");
         }
-        if(rent.getEndTime() == null){
+        if(rent.getEndDate() == null){
             throw new IllegalArgumentException("end time must not be null");
         }
-        if(rent.getStartTime().isAfter(rent.getEndTime())){
+        if(rent.getStartDate().isAfter(rent.getEndDate())){
             throw new IllegalArgumentException("start time must be lesser that end time");
         }
         if(rent.getPrice() == null){
@@ -68,8 +87,8 @@ public class RentManagerImpl implements RentManager {
             PreparedStatement st = connection.prepareStatement(
                 "INSERT INTO RENT (price,guestId,roomId,startTime,endTime) VALUES (?,?,?,?,?)",
                 Statement.RETURN_GENERATED_KEYS)) {
-            Date start = Date.valueOf(rent.getStartTime());
-            Date end = Date.valueOf(rent.getEndTime());
+            Date start = Date.valueOf(rent.getStartDate());
+            Date end = Date.valueOf(rent.getEndDate());
             st.setBigDecimal(1, rent.getPrice());
             st.setLong(2, rent.getGuest().getId());
             st.setLong(3, rent.getRoom().getId());
@@ -123,8 +142,8 @@ public class RentManagerImpl implements RentManager {
             PreparedStatement st = connection.prepareStatement(
                 "UPDATE RENT SET price = ?, guestId = ?, roomId = ?, startTime = ?, endTime = ? WHERE id = ?",
                 Statement.RETURN_GENERATED_KEYS)) {
-            Date start = Date.valueOf(rent.getStartTime());
-            Date end = Date.valueOf(rent.getEndTime());
+            Date start = Date.valueOf(rent.getStartDate());
+            Date end = Date.valueOf(rent.getEndDate());
             st.setBigDecimal(1, rent.getPrice());
             st.setLong(2, rent.getGuest().getId());
             st.setLong(3, rent.getRoom().getId());
@@ -241,8 +260,8 @@ public class RentManagerImpl implements RentManager {
                 Guest guest;
                 Room room;
                 
-                guestManager = new GuestManagerImpl(dataSource);
-                roomManager = new RoomManagerImpl(dataSource);
+                guestManager = GuestManagerImpl.getInstance();
+                roomManager = RoomManagerImpl.getInstance();
                 guest = guestManager.findGuestById(rs.getLong("guestId"));
                 room = roomManager.findRoomById(rs.getLong("roomId"));
                 
@@ -252,8 +271,8 @@ public class RentManagerImpl implements RentManager {
                 rent.setPrice(rs.getBigDecimal("price"));
                 Date start = rs.getDate("startTime");
                 Date end = rs.getDate("endTime");
-                rent.setStartTime(start.toLocalDate());
-                rent.setEndTime(end.toLocalDate());
+                rent.setStartDate(start.toLocalDate());
+                rent.setEndDate(end.toLocalDate());
 
                 if (rs.next()) {
                     throw new ServiceFailureException("Internal error: More entities with the same id found ");
@@ -275,8 +294,8 @@ public class RentManagerImpl implements RentManager {
             Guest guest;
             Room room;
 
-            guestManager = new GuestManagerImpl(dataSource);
-            roomManager = new RoomManagerImpl(dataSource);
+            guestManager = GuestManagerImpl.getInstance();
+            roomManager = RoomManagerImpl.getInstance();
             guest = guestManager.findGuestById(rs.getLong("guestId"));
             room = roomManager.findRoomById(rs.getLong("roomId"));
 
@@ -286,8 +305,8 @@ public class RentManagerImpl implements RentManager {
             rent.setPrice(rs.getBigDecimal("price"));
             Date start = rs.getDate("startTime");
             Date end = rs.getDate("endTime");
-            rent.setStartTime(start.toLocalDate());
-            rent.setEndTime(end.toLocalDate());
+            rent.setStartDate(start.toLocalDate());
+            rent.setEndDate(end.toLocalDate());
 
             result.add(rent);
         }
