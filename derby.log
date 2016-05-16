@@ -1,13 +1,39 @@
 ----------------------------------------------------------------
-Wed May 11 16:16:19 CEST 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0154-a02c-eaac-000000a9be50 
-on database directory memory:C:\Users\PavelKotala\Documents\NetBeansProjects\hotel-manager\hotelmngr with class loader sun.misc.Launcher$AppClassLoader@e2f2a 
-Loaded from file:/C:/Users/PavelKotala/.m2/repository/org/apache/derby/derby/10.12.1.1/derby-10.12.1.1.jar
+Mon May 16 19:16:40 CEST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0154-ba91-d57c-000004a87748 
+on database directory memory:C:\Users\David\IdeaProjects\hotel-manager\guestmngr-test with class loader sun.misc.Launcher$AppClassLoader@15db9742 
+Loaded from file:/C:/Users/David/.m2/repository/org/apache/derby/derby/10.12.1.1/derby-10.12.1.1.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_60-b27
-user.dir=C:\Users\PavelKotala\Documents\NetBeansProjects\hotel-manager
-os.name=Windows 7
-os.arch=x86
-os.version=6.1
+user.dir=C:\Users\David\IdeaProjects\hotel-manager
+os.name=Windows 10
+os.arch=amd64
+os.version=10.0
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Mon May 16 19:16:42 CEST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance 0249415a-0154-ba91-d57c-000004a87748 
+on database directory memory:C:\Users\David\IdeaProjects\hotel-manager\rentmngr-test with class loader sun.misc.Launcher$AppClassLoader@15db9742 
+Loaded from file:/C:/Users/David/.m2/repository/org/apache/derby/derby/10.12.1.1/derby-10.12.1.1.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_60-b27
+user.dir=C:\Users\David\IdeaProjects\hotel-manager
+os.name=Windows 10
+os.arch=amd64
+os.version=10.0
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Mon May 16 19:16:44 CEST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance 60430428-0154-ba91-d57c-000004a87748 
+on database directory memory:C:\Users\David\IdeaProjects\hotel-manager\roommngr-test with class loader sun.misc.Launcher$AppClassLoader@15db9742 
+Loaded from file:/C:/Users/David/.m2/repository/org/apache/derby/derby/10.12.1.1/derby-10.12.1.1.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_60-b27
+user.dir=C:\Users\David\IdeaProjects\hotel-manager
+os.name=Windows 10
+os.arch=amd64
+os.version=10.0
 derby.system.home=null
 Database Class Loader started - derby.database.classpath=''
