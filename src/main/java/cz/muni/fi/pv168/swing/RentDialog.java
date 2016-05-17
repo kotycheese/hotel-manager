@@ -7,6 +7,7 @@ package cz.muni.fi.pv168.swing;
 
 import cz.muni.fi.pv168.Guest;
 import cz.muni.fi.pv168.Rent;
+import cz.muni.fi.pv168.RentManagerImpl;
 import cz.muni.fi.pv168.Room;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,7 +15,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import javax.swing.JDialog;
 import javax.swing.JSpinner;
 import javax.swing.SwingWorker;
@@ -35,8 +35,8 @@ public class RentDialog extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         this.parent = (Tabs)parent;
-        startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "dd.MM.yyyy"));
-        endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "dd.MM.yyyy"));
+        startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
+        endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd"));
         GuestTableModel guestModel = (GuestTableModel)guestsTable.getModel();
         RoomTableModel roomModel = (RoomTableModel)roomsTable.getModel();
         guestModel.setGuests(this.parent.getGuests());
@@ -245,10 +245,23 @@ public class RentDialog extends javax.swing.JDialog {
         
         rent.setStartDate(startDate);
         rent.setEndDate(endDate);
-        rent.setPrice(BigDecimal.valueOf(Double.parseDouble(priceField.getText())));
+        try {
+            rent.setPrice(BigDecimal.valueOf(Double.parseDouble(priceField.getText())));
+        } catch (NumberFormatException e) {
+            setErrorMsg("ERROR: price must be a number");
+            return;
+        }
         rent.setId(id);
         rent.setGuest(guest);
         rent.setRoom(room);
+        
+        RentManagerImpl rm = (RentManagerImpl)RentManagerImpl.getInstance();
+        try {
+            rm.validateRent(rent);
+        } catch (IllegalArgumentException e) {
+            setErrorMsg("ERROR: " + e.getMessage());
+            return;
+        }
         
         final JDialog process = new ProcessingDialog(this, true);
         
@@ -350,4 +363,10 @@ public class RentDialog extends javax.swing.JDialog {
     private javax.swing.JTable roomsTable;
     private javax.swing.JSpinner startDateSpinner;
     // End of variables declaration//GEN-END:variables
+    
+    private void setErrorMsg(String message) {
+        ErrorDialog error = new ErrorDialog(this, true);
+        error.setText(message);
+        error.setVisible(true);
+    }
 }
