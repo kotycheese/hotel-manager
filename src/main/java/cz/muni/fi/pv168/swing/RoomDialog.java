@@ -5,11 +5,10 @@
  */
 package cz.muni.fi.pv168.swing;
 
-import cz.muni.fi.pv168.Guest;
 import cz.muni.fi.pv168.Room;
+import cz.muni.fi.pv168.RoomManagerImpl;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import javax.swing.JDialog;
 import javax.swing.SwingWorker;
 
@@ -175,7 +174,13 @@ public class RoomDialog extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
+    private void setErrorMsg(String message) {
+        ErrorDialog error = new ErrorDialog(this, true);
+        error.setText(message);
+        error.setVisible(true);
+    }
+    
     private void pricePerNightFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pricePerNightFieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_pricePerNightFieldActionPerformed
@@ -190,11 +195,30 @@ public class RoomDialog extends javax.swing.JDialog {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         Room room = new Room();
-        room.setBeds(Integer.parseInt(bedsField.getText()));
-        room.setNote(noteField.getText());
-        room.setNumber(Integer.parseInt(numberField.getText()));
-        room.setPricePerNight(BigDecimal.valueOf(Double.parseDouble(pricePerNightField.getText())));
+        try {
+            room.setBeds(Integer.parseInt(bedsField.getText()));
+            room.setNumber(Integer.parseInt(numberField.getText()));
+        } catch(NumberFormatException e) {
+            setErrorMsg("ERROR: Number of Beds and Room Number must be integers");
+            return;
+        }
+        try {
+            room.setPricePerNight(BigDecimal.valueOf(Double.parseDouble(pricePerNightField.getText())));
+        } catch(NumberFormatException e) {
+            setErrorMsg("ERROR: Price per Night must be a number");
+            return;
+        }
         room.setId(id);
+        room.setNote(noteField.getText());
+        
+        
+        RoomManagerImpl rm = (RoomManagerImpl)RoomManagerImpl.getInstance();
+        try {
+            rm.validateRoom(room);
+        } catch (IllegalArgumentException e) {
+            setErrorMsg("ERROR: " + e.getMessage());
+            return;
+        }
         
         final JDialog process = new ProcessingDialog(this, true);
         

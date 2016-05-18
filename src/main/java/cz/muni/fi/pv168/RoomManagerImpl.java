@@ -194,7 +194,7 @@ public class RoomManagerImpl implements RoomManager {
         }
     }
 
-    private void validateRoom(Room room) {
+    public void validateRoom(Room room) {
         if(room == null) {
             log.error("room == null");
             throw new IllegalArgumentException("room to be created must not be null");

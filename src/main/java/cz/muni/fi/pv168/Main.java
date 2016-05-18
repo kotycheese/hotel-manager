@@ -13,10 +13,11 @@ import org.apache.derby.jdbc.EmbeddedDataSource;
 public class Main {
     
     public static void main(String[] args) throws SQLException {
+        org.apache.log4j.BasicConfigurator.configure(); // to log into standart output
         try {
             setUp();
         } catch(SQLException ex) {
-            
+            System.exit(-1);
         }
         
         JFrame tabs = new Tabs();

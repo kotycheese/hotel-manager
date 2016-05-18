@@ -6,12 +6,12 @@
 package cz.muni.fi.pv168.swing;
 
 import cz.muni.fi.pv168.Guest;
+import cz.muni.fi.pv168.GuestManagerImpl;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import javax.swing.JDialog;
 import javax.swing.JSpinner;
 import javax.swing.SwingWorker;
@@ -31,7 +31,7 @@ public class GuestDialog extends javax.swing.JDialog {
     public GuestDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        dateSpinner.setEditor(new JSpinner.DateEditor(dateSpinner, "dd.MM.yyyy"));
+        dateSpinner.setEditor(new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd"));
     }
     
     public void setId(Long id) {
@@ -154,7 +154,13 @@ public class GuestDialog extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
+    private void setErrorMsg(String message) {
+        ErrorDialog error = new ErrorDialog(this, true);
+        error.setText(message);
+        error.setVisible(true);
+    }
+    
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         Guest guest = new Guest();
         guest.setName(nameField.getText());
@@ -163,6 +169,14 @@ public class GuestDialog extends javax.swing.JDialog {
         LocalDate born = instant.atZone(ZoneId.systemDefault()).toLocalDateTime().toLocalDate();
         guest.setBorn(born);
         guest.setId(id);
+        
+        GuestManagerImpl gm = (GuestManagerImpl)GuestManagerImpl.getInstance();
+        try {
+            gm.validate(guest);
+        } catch (IllegalArgumentException e) {
+            setErrorMsg("ERROR: " + e.getMessage());
+            return;
+        }
         
         final JDialog process = new ProcessingDialog(this, true);
         

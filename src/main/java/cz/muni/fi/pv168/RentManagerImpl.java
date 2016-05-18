@@ -45,7 +45,7 @@ public class RentManagerImpl implements RentManager {
         instance = null;
     }
     
-    private void validateRent(Rent rent){
+    public void validateRent(Rent rent){
         if(rent == null){
             log.error("rent == null");
             throw new IllegalArgumentException("rent to be created must not be null");
